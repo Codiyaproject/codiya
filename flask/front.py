@@ -10,13 +10,7 @@ import asyncio
 # DB 연결
 def connection():
     try:
-        con =  pymysql.connect(
-                    host = "fproject-db.c0z1pznbpt0r.us-east-2.rds.amazonaws.com",
-                    port = 3306,
-                    db = "fashion",
-                    user = "codiya",
-                    password = "fproject123!"
-                )
+        con =  
         return con
     except pymysql.Error:
         print(pymysql.Error)
