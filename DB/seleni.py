@@ -95,7 +95,7 @@ def get_detailed_product(code):
         
 # 이미지 데이터 저장 함수
 def get_image_data(soup, url):
-    image_name = url[34:]
+    image_name = f"{url[34:]}.jpg"
 
     img_url = f'https:{soup.select_one("#bigimg")["src"]}'
     
@@ -104,11 +104,11 @@ def get_image_data(soup, url):
     img_data = BytesIO(response.content)
     time.sleep(2)
     
-    img_path = f"{image_name}.jpg"
+    
     
     # 이미지 저장
     # urllib.request.urlretrieve(img_url, img_path)
-    s3_upload_img(img_data, img_path)
+    s3_upload_img(img_data, image_name)
     
     return image_name
 
@@ -170,7 +170,7 @@ def crawling(url, category):
         musinsa_price = soup.select_one("#goods_price").text.strip()
 
     # 가격 int형 변환 
-        musinsa_price = int(musinsa_price[0].strip().replace(",", "").replace("원", ""))
+        musinsa_price = int(musinsa_price.strip().replace(",", "").replace("원", ""))
     except:
         musinsa_price = 0
     random_time = random.uniform(2, 5)
