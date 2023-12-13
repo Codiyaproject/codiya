@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign up</title>
+  <link rel="stylesheet" href="/static/login-page.css">
+  <script defer src="/static/login-page.js"></script>
+</head>
+
+<body>
+  <main id="main-holder">
+    <h1 id="sign-header">Sign up</h1>
+    <form action = "http://127.0.0.1:5000/model" id="sign-form" method = "POST">
+      <input type="text" name= userid id="new-userid-field" class="sign-form-field" placeholder="User ID">
+      <input type="password" name= password id="new-password-field" class="sign-form-field" placeholder="New Password">
+      <input type="password" name= confirm_password id="confirm-password-field" class="sign-form-field" placeholder="Confirm Password">
+      <input type="name" name= username id="new-username-field" class="sign-form-field" placeholder="User Name">
+      <input type="birthday" name= birthday id="birthday-field" class="sign-form-field" placeholder="2000-00-00">
+      <input type="gender" name= gender id="gender-field" class="sign-form-field" placeholder="남/여">
+      <input type="email" name= email id="email-field" class="sign-form-field" placeholder="abcd@abcd.com">
+      <input type="phone_number" name= phone id="phone-number-field" class="sign-form-field" placeholder="휴대폰 번호, 숫자만 입력하세요">
+      <input type="submit" value= "Sign up" id="sign-form-submit">
+    </form>
+
+    <a href="/">Already have an account? Login here.</a>
+
+  </main>
+</body>
+
+</html>
