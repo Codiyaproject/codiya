@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/chatbot.css">
+    
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="canvas">
+        <div class="left">
+            <div class="contain-center-left">
+                <div class="ChatWindow flex-container" id="chat_board">
+
+                </div>
+                <div class="ChatInput is-hidey flex-container">
+                    <input type="text" id="txt" class="ChatInput-input" contenteditable="true" placeholder="어디에 가시나요? 선호하는 패션 스타일과 색상을 입력하세요.">
+                    <button type="button" class="ChatInput-btnSend" id="btn_send">send</button>
+                </div>
+            </div>
+        </div>
+        <div class="right">
+            <div id="products">
+                <span id="warte">Codiya와 상담이 끝나면 옷을 추천해드려요~</span>
+            </div>    
+        </div>
+    </div>
+    
+    
+    <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script>
+    $(function(){
+        $('#btn_send').click(function(){
+            txt = $('#txt').val();
+
+            var text = {'text':txt}
+            $('#txt').val('');
+            html2 = ""
+            html = `
+                        <div class="ChatItem ChatItem--expert">
+                            <div class="ChatItem-meta">
+                                <div class="ChatItem-avatar">
+                                    <img class="ChatItem-avatarImage" src="https://randomuser.me/api/portraits/women/0.jpg">
+                                </div>
+                            </div>
+                            <div class="ChatItem-chatContent">
+                                <div class="ChatItem-chatText">${txt}</div>
+                                <div class="ChatItem-timeStamp"><strong>Me</strong> • ${new Date()}</div>
+                            </div>
+                        </div>
+                    `
+            $('#chat_board').append( html )
+            $('#chat_board').scrollTop( $('#chat_board')[0].scrollHeight )
+
+            $.ajax({
+                type: 'POST',
+                url: '/openai/text',
+                dataType: 'JSON',
+                data:{
+                    text: txt
+                },
+                success: function(result){
+                    console.log(result);
+                    console.log(result.result.split(':')[0]);
+                    html = `
+                    <div class="ChatItem ChatItem--customer">
+                        <div class="ChatItem-meta">
+                            <div class="ChatItem-avatar">
+                                <img class="ChatItem-avatarImage" src="https://image.ibb.co/eTiXWa/avatarrobot.png">
+                            </div>
+                        </div>
+                        <div class="ChatItem-chatContent">`
+                        if(result.result==='created'){
+                             html += `<div class="ChatItem-chatText" style="float:left">
+                                        <img class="created_img" src='${result.final_img[0]}'>
+                                        <img class="created_img" src='${result.final_img[1]}'>
+                                        <img class="created_img" src='${result.final_img[2]}'>
+                                      </div>`
+                             $('#warte').hide()
+                             html2 += `
+                             <div class="prod_con">
+                                 <div class="prod_title">
+                                     1. 상의
+                                 </div>
+                                 <div class="prod_row"> 
+                                     <div class="product_column"><img class="product" src='static/images/products/1111.jpg'></div>
+                                     <div class="product_column"><img class="product" src='static/images/products/2222.jpg'></div>
+                                     <div class="product_column"><img class="product" src='static/images/products/3333.jpg'></div>
+                                 </div>
+                             </div>`
+                             html2 += `
+                             <div class="prod_con">
+                                 <div class="prod_title">
+                                     2. 하의
+                                 </div>
+                                 <div class="prod_row"> 
+                                     <div class="product_column"><img class="product" src='static/images/products/4444.jpg'></div>
+                                     <div class="product_column"><img class="product" src='static/images/products/5555.jpg'></div>
+                                     <div class="product_column"><img class="product" src='static/images/products/6666.jpg'></div>
+                                 </div>
+                             </div>`
+                             html2 += `
+                             <div class="prod_con">
+                                 <div class="prod_title">
+                                     3. 기타
+                                 </div>
+                                 <div class="prod_row"> 
+                                     <div class="product_column"><img class="product" src='static/images/products/7777.jpg'></div>
+                                     <div class="product_column"><img class="product" src='static/images/products/8888.jpg'></div>
+                                     <div class="product_column"><img class="product" src='static/images/products/9999.jpg'></div>
+                                 </div>
+                             </div>`
+                        }else{
+                            html += `<div class="ChatItem-chatText">${result.result}</div>`
+                        }
+                    html += `<div class="ChatItem-timeStamp"><strong>Codiya</strong> • ${new Date()}</div>
+                        </div>
+                    </div>
+                    `
+                    $('#products').append(html2)
+                    $('#chat_board').append( html )
+                    $('#chat_board').scrollTop( $('#chat_board')[0].scrollHeight )
+                },
+                error: function(request, status, error){
+                    console.log(error)
+                }
+            })
+        });
+
+        $('#txt').on("keyup",function(key){
+            if(key.keyCode==13){
+                // alert('엔터');
+                $('#btn_send').click();
+            }
+        });
+
+        $('#chat_board').empty()
+
+    }).ajaxStart(function(){
+        LoadingBarStart();
+    }).ajaxStop(function(){
+        LoadingBarEnd();
+    });
+
+    function LoadingBarStart(){
+	    var backHeight = $(document).height();
+	    //var backWidth = window.document.body.clientWidth;
+	    var backWidth = $(document).width();
+
+	    var backGroundCover = "<div id='back'></div>";
+	    var loadingBarImage = '';
+
+	    loadingBarImage += "<div id='loadingBar'>";
+	    loadingBarImage += "	<img src='/static/images/loading.gif'/>";
+	    loadingBarImage += "</div>";
+
+	    $('body').append(backGroundCover).append(loadingBarImage);
+
+	    $('#back').css({'width':backWidth,'height':backHeight,'opacity':'0.3'});
+	    $('#back').show();
+	    $('#loadingBar').show();
+	    $('#btn_send').attr("disabled",true);
+	    $('#txt').attr("disabled",true);
+    }
+
+    function LoadingBarEnd(){
+	    $('#back,#loadingBar').hide();
+	    $('#back,#loadingBar').remove();
+	    $('#btn_send').attr("disabled",false);
+	    $('#txt').attr("disabled",false);
+    }
+    </script>
+</body>
+
+</html>
