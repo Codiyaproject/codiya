@@ -1,6 +1,4 @@
 
-import sys
-sys.path.append("..")
 from config import s3_config
 import boto3
 from botocore.client import Config

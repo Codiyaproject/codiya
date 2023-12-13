@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/static/chatbot.css">
+    
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="canvas">
+        <div class="left">
+            <div class="contain-center-left">
+                <div class="ChatWindow flex-container" id="chat_board">
+
+                </div>
+                <div class="ChatInput is-hidey flex-container">
+                    <input type="text" id="txt" class="ChatInput-input" contenteditable="true" placeholder="어디에 가시나요? 선호하는 패션 스타일과 색상을 입력하세요.">
+                    <button type="button" class="ChatInput-btnSend" id="btn_send">send</button>
+                </div>
+            </div>
+        </div>
+        <div class="right">
+            <div id="products">
+                <span id="warte">Codiya와 상담이 끝나면 옷을 추천해드려요~</span>
+            </div>    
+        </div>
+    </div>
+    
+    
+    <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script>
+    $(function(){
+        $('#btn_send').click(function(){
+            txt = $('#txt').val();
+
+            var text = {'text':txt}
+            $('#txt').val('');
+            html2 = ""
+            html = `
+                        <div class="ChatItem ChatItem--expert">
+                            <div class="ChatItem-meta">
+                                <div class="ChatItem-avatar">
+                                    <img class="ChatItem-avatarImage" src="https://randomuser.me/api/portraits/women/0.jpg">
+                                </div>
+                            </div>
+                            <div class="ChatItem-chatContent">
+                                <div class="ChatItem-chatText">${txt}</div>
+                                <div class="ChatItem-timeStamp"><strong>Me</strong> • ${new Date()}</div>
+                            </div>
+                        </div>
+                    `
+            $('#chat_board').append( html )
+            $('#chat_board').scrollTop( $('#chat_board')[0].scrollHeight )
+
+            $.ajax({
+                type: 'POST',
+                url: '/openai/text',
+                dataType: 'JSON',
+                data:{
+                    text: txt
+                },
+                success: function(result){
+                    console.log(result);
+                    console.log(result.result.split(':')[0]);
+                    html = `
+                    <div class="ChatItem ChatItem--customer">
+                        <div class="ChatItem-meta">
+                            <div class="ChatItem-avatar">
+                                <img class="ChatItem-avatarImage" src="https://image.ibb.co/eTiXWa/avatarrobot.png">
+                            </div>
+                        </div>
+                        <div class="ChatItem-chatContent">`
+                        if(result.result==='created'){
+                             html += `<div class="ChatItem-chatText" style="float:left">
+                                        <img onclick="javascript:get_similar('${result.final_img[0]}')" class="created_img" src='static/images/created_image/${result.final_img[0]}.png'>
+                                        <img onclick="javascript:get_similar('${result.final_img[1]}')" class="created_img" src='static/images/created_image/${result.final_img[1]}.png'>
+                                        <img onclick="javascript:get_similar('${result.final_img[2]}')" class="created_img" src='static/images/created_image/${result.final_img[2]}.png'>
+                                      </div>`
+                        }else{
+                            html += `<div class="ChatItem-chatText">${result.result}</div>`
+                        }
+                    html += `<div class="ChatItem-timeStamp"><strong>Codiya</strong> • ${new Date()}</div>
+                        </div>
+                    </div>
+                    `
+                    $('#chat_board').append( html )
+                    $('#chat_board').scrollTop( $('#chat_board')[0].scrollHeight )
+                },
+                error: function(request, status, error){
+                    console.log(error)
+                }
+            })
+        });
+
+        $('#txt').on("keyup",function(key){
+            if(key.keyCode==13){
+                // alert('엔터');
+                $('#btn_send').click();
+            }
+        });
+
+        $('#chat_board').empty()
+
+    }).ajaxStart(function(){
+        LoadingBarStart();
+    }).ajaxStop(function(){
+        LoadingBarEnd();
+    });
+
+    function get_similar(title){
+        console.log(title)
+        $('#prod_list').remove()
+        html2 = ``
+        $.ajax({
+            type: 'POST',
+            url: '/models/similar',
+            dataType: 'JSON',
+            data:{
+                title : title
+            },
+            success: function(result){
+                console.log(result)
+                $('#warte').hide()
+
+                waku = `
+                    <div id = "prod_list">
+                    </div>
+                `
+
+                $('#products').append(waku)
+                console.log("rst size : "+result.pred_category.length)
+                console.log("img size : "+result.result.length)
+                if(result.pred_category.length>0){
+                    for(let i=0;i<result.pred_category.length;i++){
+                        if(result.pred_category[i]==='skirt'){
+                            html2 += `
+                                <div class="prod_con">
+                                    <div class="prod_title">
+                                        ${result.pred_category[i]}
+                                    </div>
+                                    <div class="prod_row">`
+                                    for(let j=0;j<3;j++){
+                                        let idx = (i * 3) + j
+                                        console.log(idx)
+                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/${result.pred_category[i]}/${result.result[idx]}'></div>`
+                                    }
+                            html2 += `</div>
+                                </div>`
+                        }else if(result.pred_category[i]==='dress'){
+                            html2 += `
+                                <div class="prod_con">
+                                    <div class="prod_title">
+                                        onepiece
+                                    </div>
+                                    <div class="prod_row">`
+                                    for(let j=0;j<3;j++){
+                                        let idx = (i * 3) + j
+                                        console.log(idx)
+                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/onepiece/${result.result[idx]}'></div>`
+                                    }
+                            html2 += `</div>
+                                </div>`
+                        }else if(result.pred_category[i]==='jacket'){
+                            html2 += `
+                                <div class="prod_con">
+                                    <div class="prod_title">
+                                        outer
+                                    </div>
+                                    <div class="prod_row">`
+                                    for(let j=0;j<3;j++){
+                                        let idx = (i * 3) + j
+                                        console.log(idx)
+                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/outer/${result.result[idx]}'></div>`
+                                    }
+                            html2 += `</div>
+                                </div>`
+                        }else if(result.pred_category[i]==='shirt'){
+                            html2 += `
+                                <div class="prod_con">
+                                    <div class="prod_title">
+                                        top
+                                    </div>
+                                    <div class="prod_row">`
+                                    for(let j=0;j<3;j++){
+                                        let idx = (i * 3) + j
+                                        console.log(idx)
+                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/top/${result.result[idx]}'></div>`
+                                    }
+                            html2 += `</div>
+                                </div>`
+                        }else{
+                            html2 += `
+                                <div class="prod_con">
+                                    <div class="prod_title">
+                                        pants
+                                    </div>
+                                    <div class="prod_row">`
+                                    for(let j=0;j<3;j++){
+                                        let idx = (i * 3) + j
+                                        console.log(idx)
+                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/pants/${result.result[idx]}'></div>`
+                                    }
+                            html2 += `</div>
+                                </div>`
+                        }
+                    }    
+                }else{
+                    html2 += `
+                    <div class="prod_con">
+                        <div class="prod_title">
+                            해당 추천 제품이 없어요 😒
+                        </div>
+                    </div>`    
+                }
+                $('#prod_list').append(html2)
+            },
+            error:function(request,status,error){
+                console.log(error)
+            }
+        })
+        // ajax 종료 부
+    }
+
+    function LoadingBarStart(){
+	    var backHeight = $(document).height();
+	    //var backWidth = window.document.body.clientWidth;
+	    var backWidth = $(document).width();
+
+	    var backGroundCover = "<div id='back'></div>";
+	    var loadingBarImage = '';
+
+	    loadingBarImage += "<div id='loadingBar'>";
+	    loadingBarImage += "	<img src='/static/images/loading.gif'/>";
+	    loadingBarImage += "</div>";
+
+	    $('body').append(backGroundCover).append(loadingBarImage);
+
+	    $('#back').css({'width':backWidth,'height':backHeight,'opacity':'0.3'});
+	    $('#back').show();
+	    $('#loadingBar').show();
+	    $('#btn_send').attr("disabled",true);
+	    $('#txt').attr("disabled",true);
+    }
+
+    function LoadingBarEnd(){
+	    $('#back,#loadingBar').hide();
+	    $('#back,#loadingBar').remove();
+	    $('#btn_send').attr("disabled",false);
+	    $('#txt').attr("disabled",false);
+    }
+    </script>
+</body>
+
+</html>
