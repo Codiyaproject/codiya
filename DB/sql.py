@@ -47,7 +47,7 @@ def duplicate_check(img_path, category):
         
     conn = connection()
     cur = conn.cursor()
-    sql = f"SELECT img_path FROM {table} WHERE = '{img_path}'"
+    sql = f"SELECT img_path FROM {table} WHERE img_path = '{img_path}'"
     try:
         cur.execute(sql)
         data = cur.fetchall()
