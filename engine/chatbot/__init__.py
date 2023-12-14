@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from config import openai_config
 import urllib.request
 import threading
-import requests
+import time
 import datetime
 import asyncio
 
@@ -217,7 +217,7 @@ async def answer(text, age, gender, bodyshape):
         print(final_prompt)
         # final_prompt = moderate_prompt(final_prompt)
         print("final : ", final_prompt)
-        
+        start_img_time = time.time()
         try:
             saved_three_image_url = await asyncio.gather(
                 dalle(final_prompt),
@@ -231,7 +231,8 @@ async def answer(text, age, gender, bodyshape):
         message_result = ""
         message_result += "created"
         final_img = saved_three_image_url
-        
+        last_img_time = time.time()
+        print("그림 그리는데 걸리는 시간 : ", last_img_time - start_img_time)
         save_prompt(final_prompt)
         save_image(final_img[0])
         save_image(final_img[1])

@@ -1,10 +1,8 @@
 from DB.sql import insert_userinfo_to_db, user_info, login_db
-from datetime import datetime, timedelta, date
-from flask import Flask, render_template, request, current_app, jsonify, Response, redirect, url_for
-from flask_socketio import SocketIO, emit
+from datetime import datetime, timedelta
+from flask import Flask, render_template, request, jsonify, Response
 from engine.models import search_similar_images
-from openai import OpenAI
-import jwt, hashlib
+import jwt
 import config, time
 from engine.chatbot import answer
 import asyncio
