@@ -21,6 +21,7 @@ now = datetime.datetime.now()
 
 search_log = f"web_service/static/log/search/{today}_search.log"
 
+
 def search_outfit(message):
     
     try:
