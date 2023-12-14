@@ -1,6 +1,6 @@
 import json
 
-with open("/Users/mingi/Desktop/Sesac_Project/key.json", "r") as f:
+with open("/home/ubuntu/key.json", "r") as f:
         KEY = json.load(f)
         
 def s3_config():    
