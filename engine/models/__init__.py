@@ -8,10 +8,7 @@ import faiss
 import PIL
 import cv2
 from flask import jsonify
-import requests
 import datetime
-import logging
-import logging.handlers
 import keras
 from DB.sql import musinsa_img_name
 from ultralytics import YOLO
