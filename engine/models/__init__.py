@@ -21,7 +21,7 @@ from ultralytics import YOLO
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-search_log = f"/web_service/static/log/search/{today}_search.log"
+search_log = f"./web_service/static/log/search/{today}_search.log"
 
 def search_outfit(message):
     
