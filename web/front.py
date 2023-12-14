@@ -27,13 +27,14 @@ def insert_userinfo_to_db(result:dict):
     phone = result['phone']
     today = date.today()
     age = today.year - int(birth[:4])
+    bodyshape = result['bodyshape']
     
-    sql = "INSERT INTO member (id, password, name, birth, gender, email, phone, age) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO member (id, password, name, birth, gender, email, phone, age, bodyshape) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     conn = connection()
     cur = conn.cursor()
     try:
-        cur.execute(sql, (id, password, name, birth, gender, email, phone, age))
+        cur.execute(sql, (id, password, name, birth, gender, email, phone, age, bodyshape))
     except pymysql.Error:
         print("중복된 아이디")
 
@@ -50,13 +51,14 @@ def user_info(id, password):
 
     conn = connection()
     cur = conn.cursor()
-    cur.execute(f"SELECT gender, age FROM member WHERE id = '{id}' AND password = '{password}'")
+    cur.execute(f"SELECT gender, age, bodyshape FROM member WHERE id = '{id}' AND password = '{password}'")
     userdata = cur.fetchall()
     if userdata:   
         gender = userdata[0][0]
         age = userdata[0][1]
+        bodyshape = userdata[0][2]
     conn.close()
-    return gender, age
+    return gender, age, bodyshape
     
 # 로그인 조회   
 def login_db(id, password):
@@ -90,10 +92,11 @@ def home():
         password = request.form.get('upw')
         login = login_db(user_id, password)
         if login:
-            gender, age = user_info(user_id, password)
+            gender, age, bodyshape = user_info(user_id, password)
             payload = {
                 "gender" : gender,
                 "age" : age,
+                "bodyshape" : bodyshape,
                 # 시간 5시간 지속
                 "exp" : datetime.utcnow() + timedelta(seconds = 60 * 60 * 5)
             }
@@ -153,7 +156,8 @@ def chat_gpt():
     text = request.form['text']
     age = payload["age"]
     gender = payload["gender"]
-    return asyncio.run(answer(text, age, gender))
+    bodyshape = payload["bodyshape"]
+    return asyncio.run(answer(text, age, gender,bodyshape))
     
 @app.route('/model', methods = ['GET', 'POST'])
 def model():
