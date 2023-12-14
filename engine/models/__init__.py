@@ -7,13 +7,11 @@ import numpy as np
 import faiss
 import PIL
 import cv2
-import urllib.request 
 from flask import jsonify
 import requests
 import datetime
 import logging
 import logging.handlers
-from concurrent.futures import ThreadPoolExecutor
 import keras
 from DB.sql import musinsa_img_name
 from ultralytics import YOLO
@@ -56,18 +54,13 @@ def sequence_end(message):
     except FileNotFoundError:
         with open(search_log,'w') as log_file:
             log_file.write(f"{message}" + '\n')
-            
-                   
-
-
-
-
 
 def yolo_model_create():
     print("Yolo model_create~~~~~~~~~~")
-    
     trained_yolo = YOLO('engine/yolo_trained_model.pt')
     return trained_yolo
+
+
 
 def similar_model_create():
     print("Similar model_create~~~~~~~~~~")
@@ -75,8 +68,11 @@ def similar_model_create():
     similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
     return similar_model
 
+trained_yolo = yolo_model_create()
+similar_model = similar_model_create()
+
 def predict_yolo(title):
-    trained_yolo = yolo_model_create()
+    
     print("predict_yolo~~~~~~~~~~~")
     img_path = "web_service/static/images/created_image/" + title + ".png"
     
@@ -119,10 +115,10 @@ def extract_features(img,model):
 
 
 
-
-
-
-
+def db_data_call(category):
+    index = faiss.read_index(f"DB/S3_{category}_L2_index.faiss")
+    s3_file_list = musinsa_img_name(f"musinsa_{category}")
+    return index, s3_file_list
 
 
 
@@ -132,47 +128,19 @@ def search_similar_images(title):
                             = 0 ,       =1       =2        =3        =4 
     """
     category = {0 : "outer", 1 : "top", 2 : "bottom", 3 : "bottom", 4 : "onepiece"}
-    similar_model = similar_model_create()
+    
     print("search_similar_images~~~~~~~~~~")
     n_results = 3
     result = []
     pred_img, pred_category = predict_yolo(title)
     
-    for img, category_idx in zip(pred_img, pred_category): 
-        match category[category_idx]:
-            case "outer":
-                outer_index = faiss.read_index("DB/S3_outer_L2_index.faiss")
-                outer_s3_file_list = musinsa_img_name("musinsa_outer")
-                query_features = extract_features(img, similar_model)
-                distances, indices = outer_index.search(np.array([query_features]), n_results)
-                print("거리 : " , distances)
-                similar_images = [outer_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
-                result += similar_images
-            case "top":
-                top_index = faiss.read_index("DB/S3_top_L2_index.faiss")
-                top_s3_file_list = musinsa_img_name("musinsa_top")
-                query_features = extract_features(img, similar_model)
-                distances, indices = top_index.search(np.array([query_features]), n_results)
-                print("거리 : " , distances)
-                similar_images = [top_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
-                result += similar_images
-            case "bottom":
-                bottom_index = faiss.read_index("DB/S3_bottom_L2_index.faiss")
-                bottom_s3_file_list = musinsa_img_name("musinsa_bottom")
-                query_features = extract_features(img, similar_model)
-                distances, indices = bottom_index.search(np.array([query_features]), n_results)
-                print("거리 : " , distances)
-                similar_images = [bottom_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
-                result += similar_images
-            case "onepiece":
-                onepiece_index = faiss.read_index("DB/S3_onepiece_L2_index.faiss")
-                onepiece_s3_file_list = musinsa_img_name("musinsa_onepiece")
-                query_features = extract_features(img, similar_model)
-                distances, indices = onepiece_index.search(np.array([query_features]), n_results)
-                print("거리 : " , distances)
-                similar_images = [onepiece_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
-
-                result += similar_images
+    for img, category_idx in zip(pred_img, pred_category):
+        index, s3_file_list = db_data_call(category[category_idx])
+        query_features = extract_features(img, similar_model)
+        distances, indices = index.search(np.array([query_features]), n_results)
+        print("거리 : " , distances)
+        similar_images = [s3_file_list[i].replace(".jpg", "") for i in indices[0]]
+        result += similar_images
                 
         
     print("result",result)
