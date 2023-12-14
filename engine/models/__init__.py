@@ -146,7 +146,7 @@ def search_similar_images(title):
                 query_features = extract_features(img, similar_model)
                 distances, indices = outer_index.search(np.array([query_features]), n_results)
                 print("거리 : " , distances)
-                similar_images = [outer_s3_file_list[i] for i in indices[0]]
+                similar_images = [outer_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
                 result += similar_images
             case "top":
                 top_index = faiss.read_index("DB/S3_top_L2_index.faiss")
@@ -154,7 +154,7 @@ def search_similar_images(title):
                 query_features = extract_features(img, similar_model)
                 distances, indices = top_index.search(np.array([query_features]), n_results)
                 print("거리 : " , distances)
-                similar_images = [top_s3_file_list[i] for i in indices[0]]
+                similar_images = [top_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
                 result += similar_images
             case "bottom":
                 bottom_index = faiss.read_index("DB/S3_bottom_L2_index.faiss")
@@ -162,7 +162,7 @@ def search_similar_images(title):
                 query_features = extract_features(img, similar_model)
                 distances, indices = bottom_index.search(np.array([query_features]), n_results)
                 print("거리 : " , distances)
-                similar_images = [bottom_s3_file_list[i] for i in indices[0]]
+                similar_images = [bottom_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
                 result += similar_images
             case "onepiece":
                 onepiece_index = faiss.read_index("DB/S3_onepiece_L2_index.faiss")
@@ -170,7 +170,8 @@ def search_similar_images(title):
                 query_features = extract_features(img, similar_model)
                 distances, indices = onepiece_index.search(np.array([query_features]), n_results)
                 print("거리 : " , distances)
-                similar_images = [onepiece_s3_file_list[i] for i in indices[0]]
+                similar_images = [onepiece_s3_file_list[i].replace(".jpg", "") for i in indices[0]]
+
                 result += similar_images
                 
         
