@@ -13,32 +13,32 @@ today = datetime.date.today()
 now = datetime.datetime.now()
 
 
-
+dalle_log = f"/web_service/static/log/dalle/{today}_search.log"
 
 def save_prompt(message):
     try:
-        with open(f'static/log/dalle/{today}_dalle3.log','a') as log_file:
+        with open(dalle_log,'a') as log_file:
             log_file.write(f"{now}_Final_Prompt : {message}" + '\n')
     except FileNotFoundError:
-        with open(f'static/log/dalle/{today}_dalle3.log','w') as log_file:
+        with open(dalle_log, 'w') as log_file:
             log_file.write(f"{now}_Final_Prompt : {message}" + '\n')
             
             
 def save_image(message):
     try:
-        with open(f'static/log/dalle/{today}_dalle3.log','a') as log_file:
+        with open(dalle_log,'a') as log_file:
             log_file.write(f"{now}_Created_Image : {message}" + '\n')
     except FileNotFoundError:
-        with open(f'static/log/dalle/{today}_dalle3.log','w') as log_file:
+        with open(dalle_log,'w') as log_file:
             log_file.write(f"{now}_Created_Image : {message}" + '\n')     
             
             
 def sequence_end(message):
     try:
-        with open(f'static/log/dalle/{today}_dalle3.log','a') as log_file:
+        with open(dalle_log,'a') as log_file:
             log_file.write(f"{message}" + '\n')
     except FileNotFoundError:
-        with open(f'static/log/dalle/{today}_dalle3.log','w') as log_file:
+        with open(dalle_log,'w') as log_file:
             log_file.write(f"{message}" + '\n')
 
 lock = threading.Lock()

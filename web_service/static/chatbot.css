@@ -182,8 +182,8 @@ strong {
 
 #loadingBar{
     position: absolute;
-    left: 75%;
-    top: 75%;
+    left: 50%;
+    top: 50%;
     display: none;
     z-index: 200;
     transform: translate(-50%, -50%);
