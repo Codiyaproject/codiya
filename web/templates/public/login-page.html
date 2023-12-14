@@ -10,12 +10,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link rel="stylesheet" href="/static/login-page.css">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <script defer src="/static/login-page.js"></script>
 </head>
 
 <body>
   <main id="main-holder">
-    <h1 id="login-header">Login</h1>
+    <h1 class="ml8">
+      <span class="letters-container">
+        <span class="letters letters-left">Codiya</span>
+        <span class="letters bang">!</span>
+      </span>
+      <span class="circle circle-white"></span>
+      <span class="circle circle-dark"></span>
+      <span class="circle circle-container"><span class="circle circle-dark-dashed"></span></span>
+    </h1>
+    <!-- <h1 id="login-header">Login</h1> -->
     
     <div id="login-error-msg-holder">
       <p id="login-error-msg">잘못된 ID 또는 패스워드입니다. <span id="error-msg-second-line">Invalid username</span><span id="error-msg-second-line">and/or password</span></p>
@@ -24,12 +34,12 @@
     <form id="login-form">
       <input type="text" name="userid" id="username-field" class="login-form-field" placeholder="Username">
       <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password">
-      <input type="submit" value="Login" id="login-form-submit">
+      <input type="submit" value="Login" id="login-form-submit" style="margin: 20px 0px 10px 0px;">
       <button type="button" onclick="location.href='/nlp/signup'" value="Join" id="sign-form-submit">Sign up</button>
     </form>
-    
-      
   </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
 </body>
 
 </html>

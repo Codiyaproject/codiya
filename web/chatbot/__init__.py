@@ -9,7 +9,40 @@ import urllib.request
 import ray
 import threading
 import requests
+import datetime
 import asyncio
+
+today = datetime.date.today()
+now = datetime.datetime.now()
+
+from concurrent.futures import ThreadPoolExecutor
+
+
+def save_prompt(message):
+    try:
+        with open(f'static/log/dalle/{today}_dalle3.log','a') as log_file:
+            log_file.write(f"{now}_Final_Prompt : {message}" + '\n')
+    except FileNotFoundError:
+        with open(f'static/log/dalle/{today}_dalle3.log','w') as log_file:
+            log_file.write(f"{now}_Final_Prompt : {message}" + '\n')
+            
+            
+def save_image(message):
+    try:
+        with open(f'static/log/dalle/{today}_dalle3.log','a') as log_file:
+            log_file.write(f"{now}_Created_Image : {message}" + '\n')
+    except FileNotFoundError:
+        with open(f'static/log/dalle/{today}_dalle3.log','w') as log_file:
+            log_file.write(f"{now}_Created_Image : {message}" + '\n')     
+            
+            
+def sequence_end(message):
+    try:
+        with open(f'static/log/dalle/{today}_dalle3.log','a') as log_file:
+            log_file.write(f"{message}" + '\n')
+    except FileNotFoundError:
+        with open(f'static/log/dalle/{today}_dalle3.log','w') as log_file:
+            log_file.write(f"{message}" + '\n')
 
 lock = threading.Lock()
 
@@ -19,7 +52,7 @@ def get_openai_key():
         # 개발시 로컬파일
         # openai_key.json 파일을 읽어서 "OPENAI_API_KEY" 키값 획득
         
-        key_path = "/Users/mingi/Desktop/Sesac_Project/codiya/openai_key.json"
+        key_path = "C:\\Users\\user\\Desktop\\work\\openai_key.json"
         with open(key_path) as f:
             data = json.load(f)
             # print( data['OPENAI_API_KEY'][:5] )
@@ -76,10 +109,23 @@ async def dalle(prompt):
     return save_path
 
 def current_season():
-    return "winter"
+    season = "Autumn"
+    
+    today = datetime.date.today()
+    m = today.month
+    if m in [12,1,2]:
+        season = "Winter"
+    elif m in [3,4,5]:
+        season = "Spring"
+    elif m in [6,7,8]:
+        season = "Summer"
+        
+    print(m,season)
+    
+    return season
 
-user_data = {"age":"40" , 'gender' : 'male' , 'body_type' : 'chubby'}
-age , gender , body_type = user_data.values()
+user_data = {"age":"40" , 'gender' : 'male' , 'bodyshape' : 'slim'}
+age , gender , bodyshape = user_data.values()
 season = current_season()
 gpt_system_prompt = f"""
 You're a chatbot that helps people choose what to wear today. According to the user's fashion taste, you need to help them choose the right outfit and print it out as an image. To make outfit recommendations, you need the following information.
@@ -88,7 +134,7 @@ You're a chatbot that helps people choose what to wear today. According to the u
 - season : {season} 
 - age : {age} 
 - gender : {gender}
-- body type : {body_type}
+- body type : {bodyshape}
 <required conditions>
 - Situation (example : go on a date, go to a cafe, have an interview, go to work ...  )
 - Clothing preferences ( example : streat fashion , casual fashion , dark or bright color)
@@ -109,11 +155,33 @@ state = ([{
 
 state_chatbot = ([])
 
-async def answer(text, age, gender):
+async def answer(text, age, gender, bodyshape):
        
     global state
     global state_chatbot
     print("chatbot", text)
+    
+    gpt_system_prompt = f"""You're a chatbot that helps people choose what to wear today. Based on the user's mood and preferences, you need to help them choose the right outfit and print it out as an image. To make outfit recommendations, you need the following information.
+    < base conditions : don't ask > 
+    - nation: korean
+    - season : {season}
+    - age : {age} 
+    - gender : {gender}
+    - body type : {bodyshape}
+    <required conditions>
+    - Situation (example : go on a date, go to a cafe, have an interview, go to work ...  )
+    - Clothing preferences ( example : streat fashion , casual fashion , dark or bright color)
+    To create a prompt to generate an image, the process is as follows:
+    1. Collect information from the user by asking the required conditions.
+    2. Once you have enough information, complete the prompt as shown below:
+    Example prompt:"alone,solo,Draw only 1 character,The character must be stand and include shoes and pants,hyper realistic,8k uhd,soft lighting,high quality,20s Korean woman with a chubby body type,looking straight ahead, She is dressed in warm , the fashion is suitable for colder weather and going to work,The style should be cozy yet work-appropriate. "
+    3. pass the completed prompt as an argument to call the `dalle` function.
+    4. You must answer in Korean for user but final prompt you requried must be in English.
+    5. You don't have to explain about function or prompt to the user
+    6. The prompt should be no more than 400 characters long
+    """
+    
+    state[0]['content'] = gpt_system_prompt
 
     messages = state + [
         {"role": "user", "content": text}
@@ -181,6 +249,12 @@ async def answer(text, age, gender):
         message_result = ""
         message_result += "created"
         final_img = saved_three_image_url
+        
+        save_prompt(final_prompt)
+        save_image(final_img[0])
+        save_image(final_img[1])
+        save_image(final_img[2])
+        sequence_end("====================================================================================")
 
     else:
         state_chatbot = state_chatbot + [(text, message_result)]

@@ -15,11 +15,15 @@ import requests
 import datetime
 import logging
 import logging.handlers
+import boto3
+from concurrent.futures import ThreadPoolExecutor
+import pandas as pd
+import keras
+from ultralytics import YOLO
 
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-from concurrent.futures import ThreadPoolExecutor
 
 def search_outfit(message):
     try:
@@ -52,83 +56,87 @@ def sequence_end(message):
             log_file.write(f"{message}" + '\n')
     except FileNotFoundError:
         with open(f'static/log/search/{today}_search.log','w') as log_file:
-            log_file.write(f"{message}" + '\n')                   
-
-
-def ds_create():
-    print("ds_create~~~~~~~~~")
-    dataset_names = list()
-    with open("static/dataset_names.csv",'r') as f:
-        file = csv.reader(f)
-        for line in file:
-            dataset_names += line
-    print("len:",len(dataset_names))
-    return dataset_names
-
-img_dir = "static/images/data_storage/image"
-categoreies = ['onepiece','outer','pants','skirt','top']
-
-def get_file_paths():
-    print("get_file_paths~~~~~~~~~~~~")
-    file_names = []
-    for root,_,filename in os.walk(img_dir):
-        if root.split("\\")[-1] in categoreies:
-            file_names += filename
+            log_file.write(f"{message}" + '\n')
             
-    return file_names
+                   
+ACCESS_KEY_ID = 'AKIA2S5N3ADHYPR3Y7MJ'
+ACCESS_SECRET_KEY = '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'
+BUCKET_NAME = 'fproject-codiya'
+s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY_ID, aws_secret_access_key=ACCESS_SECRET_KEY)
+all_objects = []
+
+
+response = s3.list_objects_v2(Bucket=BUCKET_NAME)
+all_objects.extend(response.get('Contents', []))
+
+
+while response.get('IsTruncated', False):
+    response = s3.list_objects_v2(Bucket=BUCKET_NAME, ContinuationToken=response['NextContinuationToken'])
+    all_objects.extend(response.get('Contents', []))
+   
+s3_file_list = list()
+for obj in all_objects:
+    s3_file_list.append(obj['Key'])
+
+
+Bottom_pd = pd.read_csv('static/csv/bottom_sample_test.csv',encoding='cp949')
+bottom_s3_file_list = Bottom_pd['file_name_jpg'].tolist()
+
+Onepiece_pd = pd.read_csv('static/csv/Onepiece_sample_test.csv',encoding='cp949')
+onepiece_s3_file_list = Onepiece_pd['file_name_jpg'].tolist()
+
+bottom_index = faiss.read_index("static/vector_db/index_L2_bottom_sample.faiss")
+onepiece_index = faiss.read_index("static/vector_db/index_L2_onepiece_sample.faiss")
 
 
 def model_create():
     print("model_create~~~~~~~~~~")
-    rf = Roboflow(api_key="Q78HnDQgOoukAA6rXrsG")
-    project = rf.workspace().project("fashion-hkjfr")
-    rf_model = project.version(5).model
     
-    detect_model = EfficientNetV2S(
-        include_top=True,
-        weights='imagenet',
-        input_tensor=None,
-        input_shape=None,
-        pooling=None,
-        classes=1000,
-        classifier_activation='softmax',
-        include_preprocessing=True
-    )
+    trained_yolo = YOLO('static/models/yolo_trained_model.pt')
     
-    similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('avg_pool').output)
+    detect_model = keras.models.load_model('static/models/fine_tuning_model.h5')
+        
+    similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
     
-    return rf_model, similar_model
+    return trained_yolo, similar_model
 
-rf_model, similar_model = model_create()
+
+trained_yolo, similar_model = model_create()
+
 
 def predict_yolo(title):
     print("predict_yolo~~~~~~~~~~~")
     img_path = "static/images/created_image/" + title + ".png"
     
-    predict = rf_model.predict(img_path)
+    predict = trained_yolo.predict(img_path)
     
     dalle_image = cv2.imread(img_path) 
     dalle_image = cv2.cvtColor(dalle_image, cv2.COLOR_BGR2RGB)
     
-    
-    predicts = predict.json()
     yolo_result = list()
     result_cates = list()
     
-    for predict in predicts["predictions"]:
-        if predict["class"] not in ["hat","sunglass","bag","shoe"]:
-            start_x, start_y, width, height, category = predict['x']-(predict["width"]//2), predict['y']-(predict["height"]//2), predict['width'], predict['height'], predict['class']
-            end_x, end_y = (start_x + width), (start_y + height)
-            print("image : ",dalle_image[start_y:end_y, start_x:end_x, :])
-            yolo_result.append(dalle_image[start_y:end_y, start_x:end_x, :]) 
-            result_cates.append(category)
-            
-    return yolo_result, result_cates
+    for info in predict : 
+        if len(info) == 0 :  
+            result_cates = ['0','1','2']
+            yolo_result.append(image[:, :, :])
+            yolo_result.append(image[:, :, :])
+            yolo_result.append(image[:, :, :])
+        else :
+            for cord in info:
+                x,y,w,h = cord[0].boxes.xywh.cpu().numpy()[0]
+                x,y,w,h = int(x),int(y),int(w),int(h)
+                start_x, start_y, width, height , category = (x - round(w/2) - 3) , (y - round(h/2) - 3) , w , h , int(cord[0].boxes.cls.cpu().numpy()[0])
+                end_x, end_y = (start_x + width), (start_y + height)
+                yolo_result.append(dalle_image[start_y:end_y, start_x:end_x, :]) 
+                result_cates.append(category)
+    
+    return yolo_result, list(set(result_cates))
 
 
 def extract_features(img,model):
     print("extract_features~~~~~~~~~")
-    img = Image.fromarray(img).resize((384,384))
+    img = Image.fromarray(img).resize((512,512))
     x = image.img_to_array(img)
     x = np.expand_dims(x,axis=0)
     x = preprocess_input(x)
@@ -136,22 +144,42 @@ def extract_features(img,model):
     print("features:",features)
     return features.flatten()
 
+
 def search_similar_images(title):
     print("search_similar_images~~~~~~~~~~")
+    n_results = 3
     result = []
     pred_img, pred_category = predict_yolo(title)
-    dataset_paths = ds_create()
-    index = faiss.read_index("static/index_efficientnet.faiss")
-    for img in pred_img:
-        query_features = extract_features(img,similar_model)
-        print("chat_bot : ",query_features)
-        distances, indices = index.search(np.array([query_features]),3)
+    
+    for img, category in zip(pred_img, pred_category): 
+        match category:
+            case 2 :
+                query_features = extract_features(img, similar_model)
+                distances, indices = bottom_index.search(np.array([query_features]), n_results)
+                print("거리 : " , distances)
+                similar_images = [bottom_s3_file_list[i] for i in indices[0]]
+                result += similar_images
+            case 3 :
+                query_features = extract_features(img, similar_model)
+                distances, indices = bottom_index.search(np.array([query_features]), n_results)
+                print("거리 : " , distances)
+                similar_images = [bottom_s3_file_list[i] for i in indices[0]]
+                result += similar_images
+            case 4 :
+                query_features = extract_features(img, similar_model)
+                distances, indices = onepiece_index.search(np.array([query_features]), n_results)
+                print("거리 : " , distances)
+                similar_images = [onepiece_s3_file_list[i] for i in indices[0]]
+                result += similar_images
+                
         
-        similar_images = [dataset_paths[i] for i in indices[0]]
-        result += similar_images
     print("result",result)
     print("pred_category",pred_category)
-    # return result, pred_category
+    
+    # for img_name in result: 
+    #     response = s3.get_object(Bucket=BUCKET_NAME, Key=img_name)
+    #     image_data = response['Body'].read()
+    #     print("response : ",response)
     
     search_outfit(title)
     search_cates(pred_category)

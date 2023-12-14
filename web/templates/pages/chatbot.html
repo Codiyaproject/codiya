@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" href="/static/chatbot.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -39,7 +40,7 @@
                         <div class="ChatItem ChatItem--expert">
                             <div class="ChatItem-meta">
                                 <div class="ChatItem-avatar">
-                                    <img class="ChatItem-avatarImage" src="https://randomuser.me/api/portraits/women/0.jpg">
+                                    <img class="ChatItem-avatarImage" src="static/images/sesac.png">
                                 </div>
                             </div>
                             <div class="ChatItem-chatContent">
@@ -131,59 +132,59 @@
                 console.log("img size : "+result.result.length)
                 if(result.pred_category.length>0){
                     for(let i=0;i<result.pred_category.length;i++){
-                        if(result.pred_category[i]==='skirt'){
+                        if(result.pred_category[i]==0){
                             html2 += `
                                 <div class="prod_con">
                                     <div class="prod_title">
-                                        ${result.pred_category[i]}
+                                        아우터
                                     </div>
                                     <div class="prod_row">`
                                     for(let j=0;j<3;j++){
                                         let idx = (i * 3) + j
                                         console.log(idx)
-                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/${result.pred_category[i]}/${result.result[idx]}'></div>`
+                                        html2 += `<div class="product_column"><img class="product" src='https://d3us7np6qh0umh.cloudfront.net/${result.result[idx]}'></div>`
                                     }
                             html2 += `</div>
                                 </div>`
-                        }else if(result.pred_category[i]==='dress'){
+                        }else if(result.pred_category[i]==1){
                             html2 += `
                                 <div class="prod_con">
                                     <div class="prod_title">
-                                        onepiece
+                                        상의
                                     </div>
                                     <div class="prod_row">`
                                     for(let j=0;j<3;j++){
                                         let idx = (i * 3) + j
                                         console.log(idx)
-                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/onepiece/${result.result[idx]}'></div>`
+                                        html2 += `<div class="product_column"><img class="product" src='https://d3us7np6qh0umh.cloudfront.net/${result.result[idx]}'></div>`
                                     }
                             html2 += `</div>
                                 </div>`
-                        }else if(result.pred_category[i]==='jacket'){
+                        }else if(result.pred_category[i]==2){
                             html2 += `
                                 <div class="prod_con">
                                     <div class="prod_title">
-                                        outer
+                                        하의
                                     </div>
                                     <div class="prod_row">`
                                     for(let j=0;j<3;j++){
                                         let idx = (i * 3) + j
                                         console.log(idx)
-                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/outer/${result.result[idx]}'></div>`
+                                        html2 += `<div class="product_column"><img class="product" src='https://d3us7np6qh0umh.cloudfront.net/${result.result[idx]}'></div>`
                                     }
                             html2 += `</div>
                                 </div>`
-                        }else if(result.pred_category[i]==='shirt'){
+                        }else if(result.pred_category[i]==3){
                             html2 += `
                                 <div class="prod_con">
                                     <div class="prod_title">
-                                        top
+                                        치마
                                     </div>
                                     <div class="prod_row">`
                                     for(let j=0;j<3;j++){
                                         let idx = (i * 3) + j
                                         console.log(idx)
-                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/top/${result.result[idx]}'></div>`
+                                        html2 += `<div class="product_column"><img class="product" src='https://d3us7np6qh0umh.cloudfront.net/${result.result[idx]}'></div>`
                                     }
                             html2 += `</div>
                                 </div>`
@@ -191,13 +192,13 @@
                             html2 += `
                                 <div class="prod_con">
                                     <div class="prod_title">
-                                        pants
+                                        원피스
                                     </div>
                                     <div class="prod_row">`
                                     for(let j=0;j<3;j++){
                                         let idx = (i * 3) + j
                                         console.log(idx)
-                                        html2 += `<div class="product_column"><img class="product" src='static/images/data_storage/image/pants/${result.result[idx]}'></div>`
+                                        html2 += `<div class="product_column"><img class="product" src=src='https://d3us7np6qh0umh.cloudfront.net/${result.result[idx]}'></div>`
                                     }
                             html2 += `</div>
                                 </div>`
@@ -229,7 +230,7 @@
 	    var loadingBarImage = '';
 
 	    loadingBarImage += "<div id='loadingBar'>";
-	    loadingBarImage += "	<img src='/static/images/loading.gif'/>";
+	    loadingBarImage += "	<img src='static/images/loading.gif'/>";
 	    loadingBarImage += "</div>";
 
 	    $('body').append(backGroundCover).append(loadingBarImage);
