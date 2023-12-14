@@ -71,7 +71,7 @@ outer_s3_file_list = musinsa_img_name("musinsa_outer")
 
 
 bottom_index = faiss.read_index("DB/S3_bottom_L2_index.faiss")
-onepiece_index = faiss.read_index("DB/S3_oenpiece_L2_index_sample.faiss")
+onepiece_index = faiss.read_index("DB/S3_oenpiece_L2_index.faiss")
 top_index = faiss.read_index("DB/S3_top_L2_index.faiss")
 outer_index = faiss.read_index("DB/S3_outer_L2_index.faiss")
 
