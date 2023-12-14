@@ -156,7 +156,7 @@ async def answer(text, age, gender, bodyshape):
     To create a prompt to generate an image, the process is as follows:
     1. Collect information from the user by asking the required conditions.
     2. Once you have enough information, complete the prompt as shown below:
-    Example prompt:"alone,solo,Draw only 1 character,The character must be stand and include shoes and pants,hyper realistic,8k uhd,soft lighting,high quality,20s Korean woman with a chubby body type,looking straight ahead, She is dressed in warm , the fashion is suitable for colder weather and going to work,The style should be cozy yet work-appropriate. "
+    Example prompt:"alone, solo, Draw only 1 character, The character must be stand and include shoes and pants, hyper realistic, 8k uhd, soft lighting,high quality, 20s Korean woman with a chubby body type, looking straight ahead, She is dressed in warm , the fashion is suitable for colder weather and going to work, The style should be cozy yet work-appropriate. "
     3. pass the completed prompt as an argument to call the `dalle` function.
     4. You must answer in Korean for user but final prompt you requried must be in English.
     5. You don't have to explain about function or prompt to the user
@@ -170,25 +170,25 @@ async def answer(text, age, gender, bodyshape):
     ]
 
     completion = client.chat.completions.create(
-        model="gpt-4",
-        messages=messages,
-        temperature=0.8,
-        max_tokens=2048,
-        functions=[{
-            "name": "dalle",
-            "description": "Generate an outfit image from prompt.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "prompt": {
-                        "type": "string",
-                        "description": "Prompt that generate an outfit image",
+        model = "gpt-4",
+        messages = messages,
+        temperature = 0.9,
+        max_tokens = 2048,
+        functions = [{
+            "name" : "dalle",
+            "description" : "Generate an outfit image from prompt.",
+            "parameters" : {
+                "type" : "object",
+                "properties" : {
+                    "prompt" : {
+                        "type" : "string",
+                        "description" : "Prompt that generate an outfit image",
                     },
                 },
-                "required": ["prompt"],
+                "required" : ["prompt"],
             },
         }],
-        function_call="auto"
+        function_call = "auto"
 
     )
 
