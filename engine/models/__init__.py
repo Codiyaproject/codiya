@@ -21,7 +21,7 @@ from ultralytics import YOLO
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-search_log = f"/web_service/static/log/search/{today}_search.log"
+search_log = f"web_service/static/log/search/{today}_search.log"
 
 def search_outfit(message):
     
@@ -70,10 +70,10 @@ outer_s3_file_list = musinsa_img_name("musinsa_outer")
 
 
 
-bottom_index = faiss.read_index("DB/S3_bottom_L2_index.faiss")
-onepiece_index = faiss.read_index("DB/S3_onepiece_L2_index.faiss")
-top_index = faiss.read_index("DB/S3_top_L2_index.faiss")
-outer_index = faiss.read_index("DB/S3_outer_L2_index.faiss")
+# bottom_index = faiss.read_index("DB/S3_bottom_L2_index.faiss")
+# onepiece_index = faiss.read_index("DB/S3_onepiece_L2_index.faiss")
+# top_index = faiss.read_index("DB/S3_top_L2_index.faiss")
+# outer_index = faiss.read_index("DB/S3_outer_L2_index.faiss")
 
 
 def yolo_model_create():
@@ -91,7 +91,7 @@ def similar_model_create():
 def predict_yolo(title):
     trained_yolo = yolo_model_create()()
     print("predict_yolo~~~~~~~~~~~")
-    img_path = "static/images/created_image/" + title + ".png"
+    img_path = "web_service/static/images/created_image/" + title + ".png"
     
     predict = trained_yolo.predict(img_path)
     
