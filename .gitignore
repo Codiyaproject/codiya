@@ -1,2 +1,5 @@
 key.json
 test*
+*.h5
+*.faiss
+*.pt
