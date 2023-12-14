@@ -104,49 +104,42 @@ loginForm.addEventListener("submit", function (event) {
     return false;
 });
 
-anime.timeline({loop: true})
-  .add({
-    targets: '.ml8 .circle-white',
-    scale: [0, 3],
-    opacity: [1, 0],
-    easing: "easeInOutExpo",
-    rotateZ: 360,
-    duration: 1100
-  }).add({
-    targets: '.ml8 .circle-container',
-    scale: [0, 1],
-    duration: 1100,
-    easing: "easeInOutExpo",
-    offset: '-=1000'
-  }).add({
-    targets: '.ml8 .circle-dark',
-    scale: [0, 1],
-    duration: 1100,
-    easing: "easeOutExpo",
-    offset: '-=600'
-  }).add({
-    targets: '.ml8 .letters-left',
-    scale: [0, 1],
-    duration: 1200,
-    offset: '-=550'
-  }).add({
-    targets: '.ml8 .bang',
-    scale: [0, 1],
-    rotateZ: [45, 15],
-    duration: 1200,
-    offset: '-=1000'
-  }).add({
-    targets: '.ml8',
-    opacity: 0,
-    duration: 1000,
-    easing: "easeOutExpo",
-    delay: 1400
-  });
+const
+	starsPerHundredPixelsSquare = 1,
+	documentElement = document.documentElement,
+	documentHeight = documentElement.offsetHeight,
+	documentWidth = documentElement.offsetWidth
+;
 
-anime({
-  targets: '.ml8 .circle-dark-dashed',
-  rotateZ: 360,
-  duration: 8000,
-  easing: "linear",
-  loop: true
-});
+let
+	starsCount = (
+		( Math.floor( documentHeight / 100 ) * Math.floor( documentWidth / 100 ))
+		* starsPerHundredPixelsSquare
+	),
+	delay = Math.round( starsCount / 5000 );
+
+	if ( delay < 1 ) {
+			delay = 1;
+	}
+
+const intervalId = window.setInterval(() => {
+	const star = document.createElement( 'i' );
+
+	star.classList.add( 'star' );
+	star.classList.add(
+		Math.floor(( Math.random() * 10 ) % 2 ) === 0
+			? 'small'
+			: 'medium'
+		);
+
+		star.style.left = ( Math.random() * 99 ).toFixed( 2 ) + '%';
+		star.style.top = ( Math.random() * 99 ).toFixed( 2 ) + '%';
+
+		document.body.appendChild( star );
+
+		if ( --starsCount === 0 ) {
+			window.clearInterval( intervalId );
+		}
+	},
+	delay
+);
