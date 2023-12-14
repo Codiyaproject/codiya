@@ -76,7 +76,7 @@ def generate_image_sync(prompt):
 
     img = get_image.data[0].url
     title = img.split('/img-')[1].split('.png')[0]
-    save_path = 'static/images/created_image/'+title+'.png'
+    save_path = 'web_service/static/images/created_image/'+title+'.png'
     print(img)
     urllib.request.urlretrieve(img, save_path)
     return title
