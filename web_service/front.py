@@ -102,7 +102,7 @@ def model():
     return render_template('public/login-page.html')
 
 
-app.run(host = "0.0.0.0", debug = True)
+app.run(host = "0.0.0.0")
     
     
 
