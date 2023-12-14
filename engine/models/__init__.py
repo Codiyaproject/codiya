@@ -2,23 +2,18 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet_v2 import EfficientNetV2S, preprocess_input
 from tensorflow.keras.models import Model
 from DB.s3 import s3
-from roboflow import Roboflow
 from PIL import Image
 import numpy as np
 import faiss
 import PIL
-import os
 import cv2
-import csv
 import urllib.request 
 from flask import jsonify
 import requests
 import datetime
 import logging
 import logging.handlers
-import boto3
 from concurrent.futures import ThreadPoolExecutor
-import pandas as pd
 import keras
 from DB.sql import musinsa_img_name
 from ultralytics import YOLO
@@ -26,7 +21,7 @@ from ultralytics import YOLO
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-search_log = f"/Users/mingi/Desktop/Sesac_Project/codiya/web_service/static/log/search/{today}_search.log"
+search_log = f"/web_service/static/log/search/{today}_search.log"
 
 def search_outfit(message):
     
@@ -79,22 +74,20 @@ outer_s3_file_list = musinsa_img_name("musinsa_outer")
 # onepiece_index = faiss.read_index("DB/index_L2_onepiece_sample.faiss")
 
 
-def model_create():
-    print("model_create~~~~~~~~~~")
+def yolo_model_create():
+    print("Yolo model_create~~~~~~~~~~")
     
     trained_yolo = YOLO('engine/yolo_trained_model.pt')
-    
+    return trained_yolo
+
+def similar_model_create():
+    print("Similar model_create~~~~~~~~~~")
     detect_model = keras.models.load_model('engine/fine_tuning_model.h5')
-        
     similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
-    
-    return trained_yolo, similar_model
-
-
-trained_yolo, similar_model = model_create()
-
+    return similar_model
 
 def predict_yolo(title):
+    trained_yolo = yolo_model_create()()
     print("predict_yolo~~~~~~~~~~~")
     img_path = "static/images/created_image/" + title + ".png"
     
@@ -136,6 +129,7 @@ def extract_features(img,model):
 
 
 def search_similar_images(title):
+    similar_model = similar_model_create()
     print("search_similar_images~~~~~~~~~~")
     n_results = 3
     result = []
