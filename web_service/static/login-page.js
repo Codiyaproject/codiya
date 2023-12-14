@@ -6,8 +6,7 @@ const signForm = document.getElementById("sign-form");
 const signupButton = document.getElementById("sign-form-submit");
 
 // 임시
-$('#username-field').val('test')
-$('#password-field').val('123')
+
 
 
 
