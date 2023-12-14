@@ -61,7 +61,6 @@ def user_info(id, password):
 # 로그인 조회   
 def login_db(id, password):
     login = False
-    print( 'login_db ->', id, password)
     hash_security = hashlib.sha256()
     hash_security.update(password.encode("utf-8"))
     password = hash_security.hexdigest()
