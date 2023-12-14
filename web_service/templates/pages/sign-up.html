@@ -9,9 +9,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign up</title>
-  <link rel="stylesheet" href="/static/login-page.css">
+  <link rel="stylesheet" href="/static/sign_up.css">
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <script defer src="/static/login-page.js"></script>
+  <script defer src="/static/sign_up.js"></script>
 </head>
 
 <body>
@@ -27,9 +27,9 @@
       <input type="email" name= email id="email-field" class="sign-form-field" placeholder="abcd@abcd.com">
       <input type="phone_number" name= phone id="phone-number-field" class="sign-form-field" placeholder="숫자만 입력하세요">
       <div>
-        <input type="radio" name="bodyshape" id="bodyshape" value="normal" checked>  보통    
-        <input type="radio" name="bodyshape" id="bodyshape" value="slim">  마름    
-        <input type="radio" name="bodyshape" id="bodyshape" value="chubby">  통통    
+        <input type="radio" name="bodyshape" id="normal" value="normal" checked>  보통    
+        <input type="radio" name="bodyshape" id="slim" value="slim">  마름    
+        <input type="radio" name="bodyshape" id="chubby" value="chubby">  통통    
       </div>
       <input type="submit" value= "Sign up" id="sign-form-submit" style="margin-top:20px; z-index:1;">
       </form>

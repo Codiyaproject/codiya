@@ -13,7 +13,7 @@ today = datetime.date.today()
 now = datetime.datetime.now()
 
 
-dalle_log = f"./web_service/static/log/dalle/{today}_search.log"
+dalle_log = f"web_service/static/log/dalle/{today}_search.log"
 
 def save_prompt(message):
     try:
