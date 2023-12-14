@@ -22,3 +22,5 @@ def mysql_config():
 def openai_config():
     OPENAI_API_KEY = KEY["OPENAI_API_KEY"]
     return OPENAI_API_KEY
+
+config = KEY["config"]

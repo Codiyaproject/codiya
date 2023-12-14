@@ -1,6 +1,7 @@
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet_v2 import EfficientNetV2S, preprocess_input
 from tensorflow.keras.models import Model
+from DB.s3 import s3
 from roboflow import Roboflow
 from PIL import Image
 import numpy as np
@@ -19,82 +20,71 @@ import boto3
 from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 import keras
+from DB.sql import musinsa_img_name
 from ultralytics import YOLO
 
 today = datetime.date.today()
 now = datetime.datetime.now()
 
+search_log = f"/Users/mingi/Desktop/Sesac_Project/codiya/web_service/static/log/search/{today}_search.log"
 
 def search_outfit(message):
+    
     try:
-        with open(f'static/log/search/{today}_search.log','a') as log_file:
+        with open(search_log,'a') as log_file:
             log_file.write(f"{now}_Outfit : {message}" + '\n')
     except FileNotFoundError:
-        with open(f'static/log/search/{today}_search.log','w') as log_file:
+        with open(search_log,'w') as log_file:
             log_file.write(f"{now}_Outfit : {message}" + '\n')
         
 def search_cates(message):
     try:
-        with open(f'static/log/search/{today}_search.log','a') as log_file:
+        with open(search_log,'a') as log_file:
             log_file.write(f"{now}_Cates : {message}" + '\n')
     except FileNotFoundError:
-        with open(f'static/log/search/{today}_search.log','w') as log_file:
+        with open(search_log,'w') as log_file:
             log_file.write(f"{now}_Cates : {message}" + '\n')
         
 def search_results(message):
     try:
-        with open(f'static/log/search/{today}_search.log','a') as log_file:
+        with open(search_log,'a') as log_file:
             log_file.write(f"{now}_Results : {message}" + '\n')        
     except FileNotFoundError:
-        with open(f'static/log/search/{today}_search.log','w') as log_file:
+        with open(search_log,'w') as log_file:
             log_file.write(f"{now}_Results : {message}" + '\n')
             
 
 def sequence_end(message):
     try:
-        with open(f'static/log/search/{today}_search.log','a') as log_file:
+        with open(search_log,'a') as log_file:
             log_file.write(f"{message}" + '\n')
     except FileNotFoundError:
-        with open(f'static/log/search/{today}_search.log','w') as log_file:
+        with open(search_log,'w') as log_file:
             log_file.write(f"{message}" + '\n')
             
                    
-ACCESS_KEY_ID = 'AKIA2S5N3ADHYPR3Y7MJ'
-ACCESS_SECRET_KEY = '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'
-BUCKET_NAME = 'fproject-codiya'
-s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY_ID, aws_secret_access_key=ACCESS_SECRET_KEY)
-all_objects = []
+
+# SQL 데이터 가져오기
+bottom_s3_file_list = musinsa_img_name("musinsa_bottom")
+
+onepiece_s3_file_list = musinsa_img_name("musinsa_onepiece")
+
+top_s3_file_list = musinsa_img_name("musinsa_top")
+
+outer_s3_file_list = musinsa_img_name("musinsa_outer")
 
 
-response = s3.list_objects_v2(Bucket=BUCKET_NAME)
-all_objects.extend(response.get('Contents', []))
 
-
-while response.get('IsTruncated', False):
-    response = s3.list_objects_v2(Bucket=BUCKET_NAME, ContinuationToken=response['NextContinuationToken'])
-    all_objects.extend(response.get('Contents', []))
-   
-s3_file_list = list()
-for obj in all_objects:
-    s3_file_list.append(obj['Key'])
-
-
-Bottom_pd = pd.read_csv('static/csv/bottom_sample_test.csv',encoding='cp949')
-bottom_s3_file_list = Bottom_pd['file_name_jpg'].tolist()
-
-Onepiece_pd = pd.read_csv('static/csv/Onepiece_sample_test.csv',encoding='cp949')
-onepiece_s3_file_list = Onepiece_pd['file_name_jpg'].tolist()
-
-bottom_index = faiss.read_index("static/vector_db/index_L2_bottom_sample.faiss")
-onepiece_index = faiss.read_index("static/vector_db/index_L2_onepiece_sample.faiss")
+# bottom_index = faiss.read_index("DB/index_L2_bottom_sample.faiss")
+# onepiece_index = faiss.read_index("DB/index_L2_onepiece_sample.faiss")
 
 
 def model_create():
     print("model_create~~~~~~~~~~")
     
-    trained_yolo = YOLO('static/models/yolo_trained_model.pt')
+    trained_yolo = YOLO('engine/yolo_trained_model.pt')
     
-    detect_model = keras.models.load_model('static/models/fine_tuning_model.h5')
+    detect_model = keras.models.load_model('engine/fine_tuning_model.h5')
         
     similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
     

@@ -1,10 +1,11 @@
-from flask import jsonify, request
+from flask import jsonify
 from openai import OpenAI
 from ray.util import inspect_serializability
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+from config import openai_config
 import json
 import os
-import random
 import urllib.request
 import ray
 import threading
@@ -15,7 +16,7 @@ import asyncio
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-from concurrent.futures import ThreadPoolExecutor
+
 
 
 def save_prompt(message):
@@ -46,24 +47,9 @@ def sequence_end(message):
 
 lock = threading.Lock()
 
-def get_openai_key():
-    key = None
-    try:
-        # 개발시 로컬파일
-        # openai_key.json 파일을 읽어서 "OPENAI_API_KEY" 키값 획득
-        
-        key_path = "C:\\Users\\user\\Desktop\\work\\openai_key.json"
-        with open(key_path) as f:
-            data = json.load(f)
-            # print( data['OPENAI_API_KEY'][:5] )
-        key = data['OPENAI_API_KEY']
-    except Exception:
-        # AWS Lambda의 환경변수
-        key = os.environ['OPENAI_API_KEY']
-    return key
 
 
-client = OpenAI(api_key=get_openai_key())
+client = OpenAI(api_key = openai_config())
 
 def moderate_prompt(prompt: str) -> str:
     prompt_prefix = "Front view, Full body shot"
@@ -83,7 +69,7 @@ def moderate_prompt(prompt: str) -> str:
 
 def generate_image_sync(prompt):
     print('call create img')
-    local_client = OpenAI(api_key=get_openai_key())
+    local_client = OpenAI(api_key = openai_config())
     get_image = local_client.images.generate(
         model='dall-e-3',
         prompt=prompt,
