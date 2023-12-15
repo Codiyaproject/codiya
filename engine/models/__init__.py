@@ -92,9 +92,9 @@ def predict_yolo(title):
         else :
             for cord in info:
                 x,y,w,h = cord[0].boxes.xywh.cpu().numpy()[0]
-                x,y,w,h = int(x),int(y),int(w),int(h)
-                start_x, start_y, width, height , category = (x - round(w/2) - 3) , (y - round(h/2) - 3) , w , h , int(cord[0].boxes.cls.cpu().numpy()[0])
-                end_x, end_y = (start_x + width), (start_y + height)
+                # x,y,w,h = x, y,int(w),int(h)
+                start_x, start_y, category = int(x - (w / 2)) , int(y - (h / 2)) , int(cord[0].boxes.cls.cpu().numpy()[0])
+                end_x, end_y = start_x + int(w), start_y + int(h)
                 yolo_result.append(dalle_image[start_y:end_y, start_x:end_x, :]) 
                 result_cates.append(category)
     
