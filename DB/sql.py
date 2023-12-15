@@ -51,7 +51,7 @@ def duplicate_check(img_path, category):
         cur.execute(sql)
         data = cur.fetchall()
     except pymysql.Error as e:
-        print(e)
+        print("중복된 데이터 입니다.\n", e)
         data = None
     conn.close()
     return data
