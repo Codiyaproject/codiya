@@ -37,18 +37,6 @@ def get_driver(url : str):
     driver.implicitly_wait(10)
     return driver
 
-# 저장 폴더 및 csv 파일 생성
-def get_storage(category):
-    # Python 실행 스크랩트 기준
-    # csv 파일 생성
-    file_name = f"{category}_data.csv"
-    
-    # 처음 생성 시 col까지 같이 생성
-    header = ["price", "review", "img_path"]
-    if not os.path.exists(file_name):
-        with open(file_name, 'a', encoding = "utf8") as f:
-            writer = csv.DictWriter(f, fieldnames = header)
-            writer.writeheader()
 
 # category_code 얻기
 def get_category(url):
@@ -70,7 +58,6 @@ def get_category(url):
         code_data = soup.select(f"#leftCommonPc > div > section.sc-g0sulw-0.bvYiGx > div:nth-child(2) > nav > div:nth-child({num}) > div.sc-8hpehb-7.liOFHO > ul > li > a")
         codes = [code["href"][40:] for code in code_data[1:]]
         category_code[clothes_type] = codes
-        get_storage(clothes_type)
         time.sleep(2)
     driver.quit()
     return category_code
@@ -130,10 +117,16 @@ def data_save(category, musinsa_price, review, img_path):
     file_name = f"{category}_data.csv"
     
     # 처음 생성 시 col까지 같이 생성
-
-    with open(file_name, 'a', encoding = "utf8") as f:
-        writer = csv.DictWriter(f, fieldnames = data.keys())
-        writer.writerow(data)
+    try:
+        with open(file_name, 'a', encoding = "utf8") as f:
+            writer = csv.DictWriter(f, fieldnames = data.keys())
+            writer.writerow(data)
+    except:
+        header = ["price", "review", "img_path"]
+        if not os.path.exists(file_name):
+            with open(file_name, 'w', encoding = "utf8") as f:
+                writer = csv.DictWriter(f, fieldnames = header)
+                writer.writeheader()
     musinsa_data_db_upload(table, img_path, musinsa_price)
     
 # 크롤링 동작
