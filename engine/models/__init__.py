@@ -132,7 +132,7 @@ def search_similar_images(title):
     n_results = 3
     result = []
     pred_img, pred_category = predict_yolo(title)
-    last_yolo = time.time
+    last_yolo = time.time()
     for img, category_idx in zip(pred_img, pred_category):
         start_faiss = time.time()
         index, s3_file_list = db_data_call(category[category_idx])
