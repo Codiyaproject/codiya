@@ -1,9 +1,8 @@
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.efficientnet_v2 import EfficientNetV2S, preprocess_input
+from tensorflow.keras.applications.efficientnet_v2 import preprocess_input
 from tensorflow.keras.models import Model
 from DB.s3 import s3
 from PIL import Image
-import time
 import numpy as np
 import faiss
 import PIL
@@ -17,7 +16,7 @@ from ultralytics import YOLO
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-search_log = f"web_service/static/log/search/{today}_search.log"
+search_log = f"config/log/search/{today}_search.log"
 
 
 def search_outfit(message):
@@ -92,7 +91,6 @@ def predict_yolo(title):
         else :
             for cord in info:
                 x,y,w,h = cord[0].boxes.xywh.cpu().numpy()[0]
-                # x,y,w,h = x, y,int(w),int(h)
                 start_x, start_y, category = int(x - (w / 2)) , int(y - (h / 2)) , int(cord[0].boxes.cls.cpu().numpy()[0])
                 end_x, end_y = start_x + int(w), start_y + int(h)
                 yolo_result.append(dalle_image[start_y:end_y, start_x:end_x, :]) 
@@ -127,31 +125,21 @@ def search_similar_images(title):
                             = 0 ,       =1       =2        =3        =4 
     """
     category = {0 : "outer", 1 : "top", 2 : "bottom", 3 : "bottom", 4 : "onepiece"}
-    start_yolo = time.time()
+    
     print("search_similar_images~~~~~~~~~~")
     n_results = 3
     result = []
     pred_img, pred_category = predict_yolo(title)
-    last_yolo = time.time()
+    
     for img, category_idx in zip(pred_img, pred_category):
-        start_faiss = time.time()
+        
         index, s3_file_list = db_data_call(category[category_idx])
         query_features = extract_features(img, similar_model)
         distances, indices = index.search(np.array([query_features]), n_results)
         print("거리 : " , distances)
         similar_images = [s3_file_list[i].replace(".jpg", "") for i in indices[0]]
         result += similar_images
-        last_faiss = time.time()
-        print("유사도 거리 측정 시간 : ", last_faiss - start_faiss)            
         
-    print("result",result)
-    print("pred_category",pred_category)
-    print("Yolo 모델 객체 탐지 시간 : ", last_yolo - start_yolo)
-    
-    # for img_name in result: 
-    #     response = s3.get_object(Bucket=BUCKET_NAME, Key=img_name)
-    #     image_data = response['Body'].read()
-    #     print("response : ",response)
     
     search_outfit(title)
     search_cates(pred_category)

@@ -5,15 +5,13 @@ from concurrent.futures import ThreadPoolExecutor
 from config import openai_config
 import urllib.request
 import threading
-import time
 import datetime
 import asyncio
 
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-
-dalle_log = f"web_service/static/log/dalle/{today}_dalle.log"
+dalle_log = f"config/log/dalle/{today}_dalle.log"
 
 def save_prompt(message):
     try:
@@ -208,19 +206,16 @@ async def answer(text, age, gender, bodyshape):
     function = completion.choices[0].message.function_call
     
     if function:
-        prompt_start = time.time()
         final_prompt += function.arguments.replace("\n", "").split(":")[1][:-1].replace("\"", "")
         state = ([{
             "role": "system",
             "content": gpt_system_prompt
         }])
         state_chatbot = ([])
-        prompt_last = time.time()
-        print("챗봇 마지막 함수 마치고 걸리는 시간 : ", prompt_last - prompt_start)
-        print(final_prompt)
+        
         # final_prompt = moderate_prompt(final_prompt)
         print("final : ", final_prompt)
-        start_img_time = time.time()
+        
         try:
             saved_three_image_url = await asyncio.gather(
                 dalle(final_prompt),
@@ -234,8 +229,8 @@ async def answer(text, age, gender, bodyshape):
         message_result = ""
         message_result += "created"
         final_img = saved_three_image_url
-        last_img_time = time.time()
-        print("그림 그리는데 걸리는 시간 : ", last_img_time - start_img_time)
+        
+        
         save_prompt(final_prompt)
         save_image(final_img[0])
         save_image(final_img[1])
