@@ -8,7 +8,7 @@ from engine.chatbot import answer
 import asyncio
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder = "./web_service/static", template_folder = "./web_service/templates")
 
 # 보안키 설정
 app.config.from_object(config)
@@ -100,7 +100,7 @@ def model():
     return render_template('public/login-page.html')
 
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", static_folder = "./web_service/static", template_foler = "./web_service/templates")
+    app.run(host = "0.0.0.0")
     
     
 
