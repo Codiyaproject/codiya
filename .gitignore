@@ -3,3 +3,5 @@ test*
 *.h5
 *.faiss
 *.pt
+*.png
+*.jpg
