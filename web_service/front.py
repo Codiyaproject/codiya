@@ -8,7 +8,7 @@ from engine.chatbot import answer
 import asyncio
 
 
-app = Flask(__name__)
+app = Flask("run")
 
 # 보안키 설정
 app.config.from_object(config)
@@ -98,9 +98,9 @@ def model():
             insert_userinfo_to_db(result)
             
     return render_template('public/login-page.html')
-
-
-app.run(host = "0.0.0.0")
+print(__name__)
+if __name__ == "run":
+    app.run(host = "0.0.0.0")
     
     
 
