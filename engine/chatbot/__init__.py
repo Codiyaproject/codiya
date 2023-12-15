@@ -215,7 +215,7 @@ async def answer(text, age, gender, bodyshape):
             "content": gpt_system_prompt
         }])
         state_chatbot = ([])
-        prompt_last = time.tiem()
+        prompt_last = time.time()
         print("챗봇 마지막 함수 마치고 걸리는 시간 : ", prompt_last - prompt_start)
         print(final_prompt)
         # final_prompt = moderate_prompt(final_prompt)
