@@ -172,7 +172,7 @@ async def answer(text, age, gender, bodyshape):
     completion = client.chat.completions.create(
         model = "gpt-4",
         messages = messages,
-        temperature = 0.9,
+        temperature = 0.7,
         max_tokens = 2048,
         functions = [{
             "name" : "dalle",
@@ -208,12 +208,15 @@ async def answer(text, age, gender, bodyshape):
     function = completion.choices[0].message.function_call
     
     if function:
+        prompt_start = time.time()
         final_prompt += function.arguments.replace("\n", "").split(":")[1][:-1].replace("\"", "")
         state = ([{
             "role": "system",
             "content": gpt_system_prompt
         }])
         state_chatbot = ([])
+        prompt_last = time.tiem()
+        print("챗봇 마지막 함수 마치고 걸리는 시간 : ", prompt_last - prompt_start)
         print(final_prompt)
         # final_prompt = moderate_prompt(final_prompt)
         print("final : ", final_prompt)
