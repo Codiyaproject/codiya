@@ -85,9 +85,9 @@ def predict_yolo(title):
     for info in predict : 
         if len(info) == 0 :  
             result_cates = ['0','1','2']
-            yolo_result.append(image[:, :, :])
-            yolo_result.append(image[:, :, :])
-            yolo_result.append(image[:, :, :])
+            yolo_result.append(dalle_image[:, :, :])
+            yolo_result.append(dalle_image[:, :, :])
+            yolo_result.append(dalle_image[:, :, :])
         else :
             for cord in info:
                 x,y,w,h = cord[0].boxes.xywh.cpu().numpy()[0]
