@@ -62,7 +62,7 @@ def yolo_model_create():
 
 def similar_model_create():
     print("Similar model_create~~~~~~~~~~")
-    detect_model = keras.models.load_model('engine/fine_tuning_model.h5')
+    detect_model = keras.models.load_model('engine/final_effi_model.h5')
     similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
     return similar_model
 
