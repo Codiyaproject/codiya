@@ -7,7 +7,7 @@ strong {
 }
 
 .ChatWindow {
-  width: 48rem;
+  width: 49rem;
   height: 75vh;
   padding: 2.5rem;
   padding-bottom: 6.5rem;
@@ -128,7 +128,7 @@ strong {
   position: relative;
   bottom: 0;
   z-index: 10;
-  width: 48rem;
+  width: 49rem;
   height: 5rem;
   background: #eee;
 }
@@ -228,8 +228,8 @@ strong {
  }
 
 .product{
-  width: 50%;
-  height: 50%;
+  width: 75%;
+  height: 75%;
   object-fit: cover;
 }
 
@@ -241,21 +241,36 @@ strong {
 .prod_row{
   display: flex;
   margin-bottom: 50px;
+  background-color: #EEEEEE;
 }
 
 .prod_con{
-  background-color: #fff;
   padding-top: 20px;
   padding-left: 20px;
+  background-color: #EEEEEE;
+  width: 49rem;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .prod_title{
   border: 1px solid #000000;
   width: 15%;
   margin-bottom: 20px;
-  background-color: #fff;
-  padding-left: 10px;
 }
+
+.product_column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  }
+
+  .product_column a,
+  .product_column span {
+      margin-top: 10px;
+  }
 
 @import url('https://fonts.googleapis.com/css2?family=Whisper&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Whisper&display=swap');
