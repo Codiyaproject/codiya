@@ -124,7 +124,7 @@ def search_similar_images(title):
           카테고리 분류 : 'jacket' , 'shirt' , 'pants' ,' skirt' , 'dress'
                             = 0 ,       =1       =2        =3        =4 
     """
-    category = {0 : "outer", 1 : "top", 2 : "bottom", 3 : "bottom", 4 : "onepiece"}
+    category = {0 : "outer", 1 : "top", 2 : "bottom", 3 : "skirt", 4 : "onepiece"}
     
     print("search_similar_images~~~~~~~~~~")
     n_results = 3
