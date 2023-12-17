@@ -107,6 +107,8 @@ def data_save(category, musinsa_price, review, img_path):
         table = "musinsa_top"
     elif category == "Bottom":
         table = "musinsa_bottom"
+    elif category == "Skirt":
+        table = "musinsa_skirt"
     else:
         table = "musinsa_onepiece"
         
