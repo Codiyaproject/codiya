@@ -1,9 +1,8 @@
 import json
 
-# with open("/home/ubuntu/key.json", "r") as f:
-#         KEY = json.load(f)
-with open("/Users/mingi/Desktop/Sesac_Project/key.json", "r") as f:
-    KEY = json.load(f)
+with open("/home/ubuntu/key.json", "r") as f:
+        KEY = json.load(f)
+
         
 def s3_config():    
     ACCESS_KEY_ID = KEY["S3_KEY"]["ACCESS_KEY_ID"]
