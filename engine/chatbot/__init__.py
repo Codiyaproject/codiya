@@ -157,7 +157,7 @@ async def answer(text, age, gender, bodyshape):
     Example prompt:"alone, solo, Draw only 1 character, The character must be stand and include shoes and pants, hyper realistic, 8k uhd, soft lighting,high quality, beautiful face, 20s Korean woman with a chubby body type, looking straight ahead, She is dressed in warm , the fashion is suitable for colder weather and going to work, The style should be cozy yet work-appropriate. "
     3. pass the completed prompt as an argument to call the `dalle` function.
     4. You must answer in Korean for user but final prompt you requried must be in English.
-    5. You don't have to explain about function or prompt to the user
+    5. You must not explain about function or prompt to the user
     6. The prompt should be no more than 400 characters long
     """
     
@@ -207,7 +207,12 @@ async def answer(text, age, gender, bodyshape):
     
     if function:
         final_prompt += function.arguments.replace("\n", "").split(":")[1][:-1].replace("\"", "")
-        
+        state = ([{
+            "role": "system",
+            "content": gpt_system_prompt
+        }])
+
+        state_chatbot = ([])
         
         # final_prompt = moderate_prompt(final_prompt)
         print("final : ", final_prompt)
