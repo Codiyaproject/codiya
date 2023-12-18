@@ -32,6 +32,12 @@
     $(function(){
         $('#btn_send').click(function(){
             txt = $('#txt').val();
+            let today = new Date();
+
+            let hours = today.getHours();
+            let minutes = today.getMinutes();
+            let seconds = today.getSeconds();
+            time = hours + ':' + minutes + ':' + seconds
 
             var text = {'text':txt}
             $('#txt').val('');
@@ -45,7 +51,7 @@
                             </div>
                             <div class="ChatItem-chatContent">
                                 <div class="ChatItem-chatText">${txt}</div>
-                                <div class="ChatItem-timeStamp"><strong>Me</strong> • ${new Date()}</div>
+                                <div class="ChatItem-timeStamp"><strong>Me</strong> • ${time}</div>
                             </div>
                         </div>
                     `
@@ -62,6 +68,14 @@
                 success: function(result){
                     console.log(result);
                     console.log(result.result.split(':')[0]);
+                    let today = new Date();
+
+                    let hours = today.getHours();
+                    let minutes = today.getMinutes();
+                    let seconds = today.getSeconds();
+
+                    time = hours + ':' + minutes + ':' + seconds
+
                     html = `
                     <div class="ChatItem ChatItem--customer">
                         <div class="ChatItem-meta">
@@ -79,7 +93,7 @@
                         }else{
                             html += `<div class="ChatItem-chatText">${result.result}</div>`
                         }
-                    html += `<div class="ChatItem-timeStamp"><strong>Codiya</strong> • ${new Date()}</div>
+                    html += `<div class="ChatItem-timeStamp"><strong>Codiya</strong> • ${time}</div>
                         </div>
                     </div>
                     `
@@ -99,7 +113,7 @@
             }
         });
 
-        $('#chat_board').empty()
+        // $('#chat_board').empty()
 
     }).ajaxStart(function(){
         LoadingBarStart();
@@ -112,6 +126,15 @@
         style: 'currency',
         currency: 'KRW',
     });
+
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = today.getMonth() + 1;
+    let date = today.getDate();
+
+    day = year + '-' + month + '-' + date
+    add_day = `<span style="margin-bottom: 10px;">${day}</span>`
+    $('#chat_board').append(add_day)
 
     function get_similar(title){
         console.log(title)
