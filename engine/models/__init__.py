@@ -54,14 +54,14 @@ def sequence_end(message):
 
 def yolo_model_create():
     print("Yolo model_create~~~~~~~~~~")
-    trained_yolo = YOLO(r'codiya\engine\yolo_trained_model.pt')
+    trained_yolo = YOLO("/home/ubuntu/codiya/engine/yolo_trained_model.pt")
     return trained_yolo
 
 
 
 def similar_model_create():
     print("Similar model_create~~~~~~~~~~")
-    detect_model = keras.models.load_model(r'codiya\engine\final_effi_model.h5')
+    detect_model = keras.models.load_model("/home/ubuntu/codiya/engine/fine_tuning_model.h5")
     similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
     return similar_model
 
