@@ -10,14 +10,14 @@ import PIL
 import os
 import io
 import cv2
-from sql import musinsa_img_name
-from s3 import s3_download_img
+from DB.sql import musinsa_img_name
+from DB.s3 import s3_download_img
 
 
 # 모델 생성
 def model_create():
     # EfficientNetV2S 모델 객체 생성
-    base_model = models.load_model("/Users/mingi/Downloads/fine-tuning-model/fine_tuning_model.h5")
+    base_model = models.load_model("/Users/mingi/Desktop/Sesac_Project/final_effi_model.h5")
     # EfficientNetV2S 모델의 데이터 추출 모드 사용 
     model = Model(inputs=base_model.input, outputs=base_model.get_layer('global_average_pooling2d').output)
     return model
@@ -66,7 +66,7 @@ def search_similar_images(query_img_path, model, index, dataset_paths, n_results
     return similar_images
 
 # DB table name
-tables = ["musinsa_outer", "musinsa_top", "musinsa_bottom", "musinsa_onepiece"]
+tables = ["musinsa_top"]
 
 # 모델 생성
 model = model_create()

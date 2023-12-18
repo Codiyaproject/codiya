@@ -12,6 +12,15 @@ def get_client():
             region_name = REGION,
             config=Config(signature_version = 's3v4')
         )
+    
+def get_resource():
+    return boto3.resource(
+            service_name = "s3",
+            aws_access_key_id = ACCESS_KEY_ID,
+            aws_secret_access_key = ACCESS_SECRET_KEY,
+            region_name = REGION,
+            config=Config(signature_version = 's3v4')
+        )
 
 # 이미지 불러오기
 def s3_download_img(img_name):
@@ -20,7 +29,7 @@ def s3_download_img(img_name):
 
 # s3 업로드
 def s3_upload_img(file, img_name):
-    s3 = get_client()
+    s3 = get_resource()
     s3.Bucket(BUCKET_NAME).put_object(
         Key = img_name, Body = file, ContentType = "image/jpg"
     )

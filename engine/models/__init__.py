@@ -1,7 +1,6 @@
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet_v2 import preprocess_input
 from tensorflow.keras.models import Model
-from DB.s3 import s3
 from PIL import Image
 import numpy as np
 import faiss
@@ -84,19 +83,25 @@ def predict_yolo(title):
     
     for info in predict : 
         if len(info) == 0 :  
-            result_cates = ['0','1','2']
-            yolo_result.append(dalle_image[:, :, :])
-            yolo_result.append(dalle_image[:, :, :])
-            yolo_result.append(dalle_image[:, :, :])
+            result_cates = [0, 1, 2]
+            yolo_result.append(dalle_image[:, :, :] * 3)
+
         else :
+            print("탐지성공")
+            print("탐지 갯수 :" ,len(info))
             for cord in info:
-                x,y,w,h = cord[0].boxes.xywh.cpu().numpy()[0]
-                start_x, start_y, category = int(x - (w / 2)) , int(y - (h / 2)) , int(cord[0].boxes.cls.cpu().numpy()[0])
-                end_x, end_y = start_x + int(w), start_y + int(h)
-                yolo_result.append(dalle_image[start_y:end_y, start_x:end_x, :]) 
-                result_cates.append(category)
+                category = int(cord[0].boxes.cls.cpu().numpy()[0]) ## 카테고리 이름 ( 0,1,2 ... )
+                if not category in result_cates :  # 총 카테고리 목록에 똑같은 카테고리가 없다면
+                    result_cates.append(category)
+                    x,y,w,h = cord[0].boxes.xywh.cpu().numpy()[0]
+                    #x,y,w,h = int(x),int(y),int(w),int(h)
+                    start_x, start_y  = int(x - w / 2) , int(y - h / 2) 
+                    end_x, end_y = int(start_x + w), int(start_y + h)                  
+                    yolo_result.append(dalle_image[start_y:end_y, start_x:end_x, :]) 
+                else :
+                    pass #  중복이면 pass 
     
-    return yolo_result, list(set(result_cates))
+    return yolo_result, result_cates
 
 
 def extract_features(img,model):
