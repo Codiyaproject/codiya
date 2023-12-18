@@ -1,7 +1,7 @@
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet_v2 import preprocess_input
 from tensorflow.keras.models import Model
-from DB.s3 import s3
+# from DB.s3 import s3
 from PIL import Image
 import numpy as np
 import faiss
@@ -10,13 +10,13 @@ import cv2
 from flask import jsonify
 import datetime
 import keras
-from DB.sql import musinsa_img_name
+from DB.sql import musinsa_img_name, musinsa_img_price
 from ultralytics import YOLO
 
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-search_log = f"config/log/search/{today}_search.log"
+search_log = f"codiya/web_service/static/log/search/{today}_search.log"
 
 
 def search_outfit(message):
@@ -55,14 +55,14 @@ def sequence_end(message):
 
 def yolo_model_create():
     print("Yolo model_create~~~~~~~~~~")
-    trained_yolo = YOLO('engine/yolo_trained_model.pt')
+    trained_yolo = YOLO(r'codiya\engine\yolo_trained_model.pt')
     return trained_yolo
 
 
 
 def similar_model_create():
     print("Similar model_create~~~~~~~~~~")
-    detect_model = keras.models.load_model('engine/fine_tuning_model.h5')
+    detect_model = keras.models.load_model(r'codiya\engine\final_effi_model.h5')
     similar_model = Model(inputs=detect_model.input,outputs=detect_model.get_layer('global_average_pooling2d').output)
     return similar_model
 
@@ -72,7 +72,7 @@ similar_model = similar_model_create()
 def predict_yolo(title):
     
     print("predict_yolo~~~~~~~~~~~")
-    img_path = "web_service/static/images/created_image/" + title + ".png"
+    img_path = "codiya/web_service/static/images/created_image/" + title + ".png"
     
     predict = trained_yolo.predict(img_path)
     
@@ -113,7 +113,7 @@ def extract_features(img,model):
 
 
 def db_data_call(category):
-    index = faiss.read_index(f"DB/S3_{category}_L2_index.faiss")
+    index = faiss.read_index(f"codiya/DB/S3_{category}_L2_index.faiss")
     s3_file_list = musinsa_img_name(f"musinsa_{category}")
     return index, s3_file_list
 
@@ -129,16 +129,26 @@ def search_similar_images(title):
     print("search_similar_images~~~~~~~~~~")
     n_results = 3
     result = []
+    price = []
     pred_img, pred_category = predict_yolo(title)
     
     for img, category_idx in zip(pred_img, pred_category):
-        
         index, s3_file_list = db_data_call(category[category_idx])
         query_features = extract_features(img, similar_model)
         distances, indices = index.search(np.array([query_features]), n_results)
         print("거리 : " , distances)
         similar_images = [s3_file_list[i].replace(".jpg", "") for i in indices[0]]
+        
+        for img in similar_images:
+            price += get_price(img,category[category_idx])
+        
+        
         result += similar_images
+        
+        
+    # for img in result:
+    #     print("img : ", img)
+    #     price += get_price(img,pred_category)
         
     
     search_outfit(title)
@@ -146,4 +156,7 @@ def search_similar_images(title):
     search_results(result)
     sequence_end("====================================================================================")
     
-    return jsonify({"result": result, "pred_category": pred_category})
+    return jsonify({"result": result, "pred_category": pred_category, "price":price})
+
+def get_price(img,pred_category):
+    return musinsa_img_price(img,pred_category)

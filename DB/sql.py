@@ -143,7 +143,28 @@ def login_db(id, password):
 
 # ===============================================================================
 
-
+def musinsa_img_price(img,pred_category):
+    print("pred_category : ",pred_category)
+    print("pred_category type : ",type(pred_category))
+       
+    
+    conn = connection()
+    cur = conn.cursor()
+    
+    sql = f"SELECT price FROM musinsa_{pred_category} WHERE img_path = '{img}.jpg'"
+    
+    try:
+        cur.execute(sql)
+        print("query : ", sql)
+        price = cur.fetchall()
+    except pymysql.Error as e:
+        print(e)
+        price = 0
+    conn.close()
+    
+    print("sql : ",price)
+    return price
+    
 
 if __name__ == "__main__":
     a = musinsa_img_name("musinsa_onepiece")

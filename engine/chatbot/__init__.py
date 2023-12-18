@@ -11,7 +11,7 @@ import asyncio
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-dalle_log = f"config/log/dalle/{today}_dalle.log"
+dalle_log = f"codiya/web_service/static/log/dalle/{today}_dalle.log"
 
 def save_prompt(message):
     try:
@@ -74,7 +74,7 @@ def generate_image_sync(prompt):
 
     img = get_image.data[0].url
     title = img.split('/img-')[1].split('.png')[0]
-    save_path = 'web_service/static/images/created_image/'+title+'.png'
+    save_path = 'codiya/web_service/static/images/created_image/'+title+'.png'
     print(img)
     urllib.request.urlretrieve(img, save_path)
     return title
@@ -230,7 +230,7 @@ async def answer(text, age, gender, bodyshape):
         message_result += "created"
         final_img = saved_three_image_url
         
-        
+        print("final_img : ", final_img)
         save_prompt(final_prompt)
         save_image(final_img[0])
         save_image(final_img[1])
