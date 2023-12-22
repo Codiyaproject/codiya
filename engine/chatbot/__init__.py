@@ -11,7 +11,7 @@ import asyncio
 today = datetime.date.today()
 now = datetime.datetime.now()
 
-dalle_log = f"codiya/web_service/static/log/dalle/{today}_dalle.log"
+dalle_log = f"codiya/config/log/dalle/{today}_dalle.log"
 
 def save_prompt(message):
     try:
